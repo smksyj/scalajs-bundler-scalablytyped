@@ -1,3 +1,7 @@
+import sbt.`package`
+import java.nio.file.Files
+
+
 enablePlugins(ScalaJSPlugin)
 enablePlugins(ScalablyTypedConverterPlugin)
 
@@ -15,6 +19,21 @@ Compile / npmDependencies ++= Seq(
 
 useYarn := true
 
+// copy web/index.html into target path
+val copyHtml = taskKey[Unit]("Copy index.html from web to cross-version target directory")
+copyHtml := {
+    import Path._
+    val index = new File("web/index.html")
+    // TODO: use bundler build path for targetIndex
+    val targetIndex = new File((Compile/crossTarget).value.toString() + "/scalajs-bundler/main/" + index.name)
+    println(index.toPath(), targetIndex.toPath())
+
+    Files.copy(index.toPath, targetIndex.toPath)
+}
+compile in Compile := {
+    copyHtml.value
+    (compile in Compile).value
+}
 
 // use custom webpack config to change output js filename
 webpackConfigFile := Some(baseDirectory.value / "custom.webpack.config.js")
