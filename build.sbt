@@ -1,5 +1,6 @@
 import sbt.`package`
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 
 enablePlugins(ScalaJSPlugin)
@@ -26,9 +27,7 @@ copyHtml := {
     val index = new File("web/index.html")
     // TODO: use bundler build path for targetIndex
     val targetIndex = new File((Compile/crossTarget).value.toString() + "/scalajs-bundler/main/" + index.name)
-    println(index.toPath(), targetIndex.toPath())
-
-    Files.copy(index.toPath, targetIndex.toPath)
+    Files.copy(index.toPath, targetIndex.toPath, StandardCopyOption.REPLACE_EXISTING)
 }
 compile in Compile := {
     copyHtml.value
